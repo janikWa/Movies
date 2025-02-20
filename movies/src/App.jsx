@@ -1,39 +1,19 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
-
-const Card = ({title}) => {
-
-  const [hasLiked, setHasLiked] = useState(false); 
-
-  return(
-    <div className="card" >
-      <h2>{title}</h2>
-
-      <button onClick={() => setHasLiked(!hasLiked)}> 
-        {hasLiked ? "❤️": "🤍"}
-      </button>
-  </div>
-
-  )
-}
+import React from "react"
 
 const App = () => {
+    return(
+        <main>
 
-  return (
-    <div className="card-container">
+            <div className="pattern" />
+            <div className="wrapper"> 
+                <header>
+                <h1> Find <span className="text-gradient">Movies</span>  You'll Enjoy Without the Hassle</h1>
+                </header>
+                <p>Search</p>
 
-      <Card title="Star Wars " rating={5} isCool = {true} actors = {[{name: "Actors"}]} />
-      <Card title="Avatar"/>
-      <Card title="The Lion King"/>
-    </div>
-
-  )
+            </div>
+        </main>
+    )
 }
-
-
-
-
 
 export default App

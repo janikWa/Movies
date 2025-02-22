@@ -76,7 +76,7 @@ const App = () => {
                 <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm}/>
                 </header>
 
-                <section className="all-movies">
+                <section className="all-movies" style={{overflowY: "auto", maxHeight: "90vh"}}>
 
                     <h2 className="mt-[40px]"> All Movies</h2>
                     

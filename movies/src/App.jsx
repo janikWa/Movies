@@ -7,6 +7,7 @@ import MovieCard from "./components/MovieCard.jsx";
 import { useDebounce } from "react-use";
 import { useRef } from "react";
 import { getTrendingMovies, updateSearchCount } from "./appwrite.js";
+import Pagination from "./components/Pagination.jsx";
 
 const API_BASE_URL = "https://api.themoviedb.org/3"; 
 
@@ -27,19 +28,20 @@ const App = () => {
     const [isLoading, setIsLoading] = useState(false); 
     const [debouncedSearchTerm, setDebouncedSeatchTerm] = useState(""); 
     const [trendingMovies, setTrendingMovies] = useState([]); 
+    const [currentPage, setCurrentPage] = useState(1); 
 
     useDebounce(() => setDebouncedSeatchTerm(searchTerm), 500, [searchTerm]); 
 
     const scrollPosition = useRef(0); 
 
-    const fetchMovies = async (query="") => {
+    const fetchMovies = async (query="", page=1) => {
 
         scrollPosition.current = window.scrollY; 
         setIsLoading(true); 
         setErrorMessage(""); 
 
         try{
-            const endpoint = query ? `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}` :`${API_BASE_URL}/discover/movie?sort_by=popularity.desc`; 
+            const endpoint = query ? `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}` : `${API_BASE_URL}/discover/movie?sort_by=popularity.desc&page=${page}`; 
 
             const response = await fetch(endpoint, API_OPTIONS); 
 
@@ -96,7 +98,6 @@ const App = () => {
 
     return(
         <main>
-
             <div className="pattern" />
             <div className="wrapper"> 
                 <header>
@@ -134,6 +135,10 @@ const App = () => {
                         </ul>
                     )
                     }
+                </section>
+
+                <section className="pagination">
+                    <Pagination />
                 </section>
             </div>
         </main>

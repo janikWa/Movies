@@ -13,13 +13,14 @@ export const updateSearchCount = async(searchTerm, movie) => {
     try{
 
         console.log("Movie data: ", movie); 
-        console.log("Poster: ", movie.poster_path)
         
         const result = await database.listDocuments(DATABASE_ID, COLLECTION_ID, [Query.equal("searchTerm", searchTerm), ]); 
 
         const posterPath = movie.poster_path
         ? `https://image.tmdb.org/t/p/w500/${movie.poster_path}`
         : null;
+
+        console.log("Poster Path: ", posterPath); 
 
         if(result.documents.length > 0){
             const doc = result.documents[0]; 

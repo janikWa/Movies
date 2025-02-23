@@ -139,8 +139,27 @@
     & .content .year {
       @apply text-gray-100 font-medium text-base;
     }
+
+    
   }
+
+  .pagination {
+    display: flex;
+    justify-content: center; /* Centers horizontally */
+    align-items: center; /* Aligns vertically if necessary */
+    margin-top: 20px; /* Adjust spacing from the movies section */
+    position: relative; /* Change this if needed */
 }
+
+
+
+
+
+
+  
+}
+
+
 
 @utility text-gradient {
   @apply bg-linear-to-r from-[#D6C7FF] to-[#AB8BFF] bg-clip-text text-transparent;

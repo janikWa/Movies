@@ -1,5 +1,5 @@
 import React from "react";
-import { X } from "lucide-react"; // Make sure you installed `lucide-react`
+import { X } from "lucide-react"; 
 
 const Search = ({ searchTerm, setSearchTerm }) => {
     return (

@@ -9,6 +9,7 @@ import { useRef } from "react";
 import { getTrendingMovies, updateSearchCount } from "./appwrite.js";
 import Pagination from "./components/Pagination.jsx";
 
+
 const API_BASE_URL = "https://api.themoviedb.org/3"; 
 
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY; 
@@ -29,6 +30,8 @@ const App = () => {
     const [debouncedSearchTerm, setDebouncedSeatchTerm] = useState(""); 
     const [trendingMovies, setTrendingMovies] = useState([]); 
     const [currentPage, setCurrentPage] = useState(1); 
+    const [totalPages, setTotalPages] = useState(1); 
+
 
     useDebounce(() => setDebouncedSeatchTerm(searchTerm), 500, [searchTerm]); 
 
@@ -41,7 +44,10 @@ const App = () => {
         setErrorMessage(""); 
 
         try{
-            const endpoint = query ? `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}` : `${API_BASE_URL}/discover/movie?sort_by=popularity.desc&page=${page}`; 
+            const endpoint = query 
+            ? `${API_BASE_URL}/search/movie?query=${encodeURIComponent(query)}&page=${page}` 
+            : `${API_BASE_URL}/discover/movie?sort_by=popularity.desc&page=${page}`;
+
 
             const response = await fetch(endpoint, API_OPTIONS); 
 
@@ -58,6 +64,8 @@ const App = () => {
             }
 
             setMovieList(data.results || []); 
+            setTotalPages(data.total_pages); 
+            console.log("total pages: ", data.total_pages); 
             
             if(query && data.results.length > 0 ){
                 await updateSearchCount(query, data.results[0]); 
@@ -88,8 +96,8 @@ const App = () => {
     }, [movieList, isLoading]);
 
     useEffect(()=> {
-        fetchMovies(debouncedSearchTerm); 
-    }, [debouncedSearchTerm]); 
+        fetchMovies(debouncedSearchTerm, currentPage); 
+    }, [debouncedSearchTerm, currentPage]); 
 
     useEffect(() =>{
         loadTrendingMovies(); 
@@ -136,10 +144,16 @@ const App = () => {
                     )
                     }
                 </section>
+                <section>
+                    <Pagination 
+                        totalPages={totalPages} 
+                        page={currentPage} 
+                        onChange={(newPage) => setCurrentPage(newPage)} 
+                    />
 
-                <section className="pagination">
-                    <Pagination />
                 </section>
+
+
             </div>
         </main>
     )

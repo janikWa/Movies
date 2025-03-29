@@ -6,6 +6,7 @@ import MovieCard from "./components/MovieCard.jsx";
 import { useDebounce } from "react-use";
 import { getTrendingMovies, updateSearchCount } from "./appwrite.js";
 
+
 const API_BASE_URL = "https://api.themoviedb.org/3";
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
 
@@ -90,7 +91,7 @@ const App = () => {
             fetchMovies(debouncedSearchTerm, regularPage); 
         }
         
-    }, [debouncedSearchTerm, searchPage, regularPage, currentPage]);
+    }, [debouncedSearchTerm, searchPage, regularPage, currentPage, genre, releaseYear, rating, adult]);
 
     useEffect(() => {
         getTrendingMovies().then(setTrendingMovies).catch(console.error);
@@ -98,9 +99,10 @@ const App = () => {
 
     useEffect(() => {
         if(searchTerm){
-            setSearchPage(1); 
+            //setSearchPage(1); 
+            setCurrentPage(searchPage); 
         }
-    }, [searchTerm]);
+    }, [searchTerm, searchPage]);
     
     useEffect(() => {
         if(!searchTerm){
@@ -114,7 +116,6 @@ const App = () => {
         }else{
             setRegularPage(page); 
         }
-        
     };
 
     const handleNext = () => {
@@ -150,14 +151,59 @@ const App = () => {
                     <h1>Find <span className="text-gradient">Movies</span> You'll Enjoy Without the Hassle</h1>
                     <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
                 </header>
-              
 
+                {/* Filters Section */}
+                <section className="filters mt-10">
+                    <div className="filter-group">
+                        <label>Genre:</label>
+                        <select value={genre} onChange={(e) => setGenre(e.target.value)}>
+                            <option value="">All Genres</option>
+                            <option value="28">Action</option>
+                            <option value="12">Adventure</option>
+                            <option value="35">Comedy</option>
+                            <option value="18">Drama</option>
+                            <option value="80">Crime</option>
+                            {/* Add more genres as necessary */}
+                        </select>
+                    </div>
+
+                    <div className="filter-group">
+                        <label>Release Year:</label>
+                        <input
+                            type="number"
+                            value={releaseYear}
+                            onChange={(e) => setReleaseYear(e.target.value)}
+                            placeholder="Enter year"
+                        />
+                    </div>
+
+                    <div className="filter-group">
+                        <label>Rating:</label>
+                        <select value={rating} onChange={(e) => setRating(e.target.value)}>
+                            <option value="">Any Rating</option>
+                            <option value="7">7+</option>
+                            <option value="8">8+</option>
+                            <option value="9">9+</option>
+                        </select>
+                    </div>
+
+                    <div className="filter-group">
+                        <label>Adult Content:</label>
+                        <input
+                            type="checkbox"
+                            checked={adult}
+                            onChange={() => setAdult(!adult)}
+                        />
+                    </div>
+                </section>
+
+                {/* Trending Movies */}
                 {trendingMovies.length > 0 && (
                     <section className="trending">
                         <h2>Trending Movies</h2>
                         <ul>
                             {trendingMovies.map((movie, index) => (
-                                <li key={movie.$id}>
+                                <li key={movie.id}>
                                     <p>{index + 1}</p>
                                     <img src={movie.poster_url} alt={movie.title} />
                                 </li>
@@ -166,6 +212,7 @@ const App = () => {
                     </section>
                 )}
 
+                {/* All Movies */}
                 <section className="all-movies">
                     <h2>All Movies</h2>
                     {isLoading ? (
@@ -186,7 +233,8 @@ const App = () => {
                     <button
                         onClick={handlePrev}
                         disabled={currentPage === 1}
-                        className="px-4 py-2 rounded-lg font-semibold text-white bg-gray-700 hover:bg-gray-600 transition-all ease-in-out duration-200 disabled:bg-gray-500 cursor-not-allowed opacity-60">
+                        className="pagination-button"
+                    >
                         Prev
                     </button>
 
@@ -194,28 +242,24 @@ const App = () => {
                         const page = pageGroup * 5 + i + 1;
                         if (page > totalPages) return null;
                         return (
-                        <button
-                            key={page}
-                            onClick={() => changePage(page)}
-                            className={`px-4 py-2 rounded-lg font-semibold text-white ${
-                            currentPage === page
-                                ? "bg-light-200 hover:bg-light-200"
-                                : "bg-gray-700 hover:bg-gray-600"
-                            } transition-all ease-in-out duration-200`}
-                        >
-                            {page}
-                        </button>
+                            <button
+                                key={page}
+                                onClick={() => changePage(page)}
+                                className={`pagination-button ${currentPage === page ? "active" : ""}`}
+                            >
+                                {page}
+                            </button>
                         );
                     })}
 
                     <button
                         onClick={handleNext}
                         disabled={currentPage === totalPages}
-                        className="px-4 py-2 rounded-lg font-semibold text-white bg-gray-700 hover:bg-gray-600 transition-all ease-in-out duration-200 disabled:bg-gray-500 cursor-not-allowed opacity-60"
+                        className="pagination-button"
                     >
                         Next
                     </button>
-                    </div>
+                </div>
             </div>
         </main>
     );

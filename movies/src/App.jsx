@@ -76,6 +76,13 @@ const App = () => {
     
             const data = await response.json();
             setMovieList(data.results || []);
+            
+            if(query && data.results.length > 0){
+                console.log(query); 
+                console.log(data.results[0])
+                await updateSearchCount(query, data.results[0]); 
+            }
+            
             setTotalPages(data.total_pages);
         } catch (error) {
             setErrorMessage("Error fetching movies. Please try again later.");

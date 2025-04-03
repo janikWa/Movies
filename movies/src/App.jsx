@@ -24,6 +24,7 @@ const App = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
     const [movieList, setMovieList] = useState([]);
+    const [genreList, setGenreList] = useState([]); 
     const [isLoading, setIsLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
     const [trendingMovies, setTrendingMovies] = useState([]);
@@ -34,6 +35,9 @@ const App = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [pageGroup, setPageGroup] = useState(0);
 
+    const [selectedGenre, setSelectedGenre] = useState('All Genres');
+    const [isOpen, setIsOpen] = useState(false); 
+    const [activeGenre, setActiveGenre] = useState('All Genres');
     const [genre, setGenre] = useState(""); 
     const [releaseYear, setReleaseYear] = useState(""); 
     const [rating, setRating] = useState(""); 
@@ -41,7 +45,45 @@ const App = () => {
 
     useDebounce(() => setDebouncedSearchTerm(searchTerm), 500, [searchTerm]);
 
+    const handleToggleDropdown = () => {
+        setIsOpen(!isOpen);
+      };
+
+    const handleSelectGenre = (genreName) => {
+        const genreObj = genreList.find((g) => g.name === genreName);
+    
+        setSelectedGenre(genreName);  
+        setGenre(genreObj ? genreObj.id : ""); 
+        setActiveGenre(genreName);
+        setIsOpen(false);
+    
+        console.log("Selected Genre:", genreName);
+        console.log("Selected Genre ID:", genreObj ? genreObj.id : "None"); 
+    };
+
+    useEffect(() => {
+        console.log("Selected Genre:", selectedGenre); 
+        console.log("Selected Genre ID:", genre);
+    }, [selectedGenre]);
+    
+
     const scrollPosition = useRef(0);
+
+    const fetchGenres = async () => {
+        let endpoint = `${API_BASE_URL}/genre/movie/list`; 
+
+        try {
+            const response = await fetch(endpoint, API_OPTIONS);
+            console.log(endpoint)
+            if (!response.ok) throw new Error("Failed to fetch genres!");
+    
+            const data = await response.json();
+            setGenreList(data.genres || []);
+            console.log(data.genres); 
+        } catch (error) {
+            console.log("Error fetching genres");
+        } 
+    }
 
     const fetchMovies = async (query = "", page = 1) => {
         scrollPosition.current = window.scrollY;
@@ -74,13 +116,13 @@ const App = () => {
     
         try {
             const response = await fetch(endpoint, API_OPTIONS);
+            console.log(selectedGenre)
             if (!response.ok) throw new Error("Failed to fetch movies!");
     
             const data = await response.json();
             setMovieList(data.results || []);
             
             if(query && data.results.length > 0){
-                console.log(query); 
                 console.log(data.results[0])
                 await updateSearchCount(query, data.results[0]); 
             }
@@ -100,11 +142,16 @@ const App = () => {
             fetchMovies(debouncedSearchTerm, regularPage); 
         }
         
-    }, [debouncedSearchTerm, searchPage, regularPage, currentPage, genre, releaseYear, rating, adult]);
+    }, [debouncedSearchTerm, searchPage, regularPage, currentPage, selectedGenre]);
 
     useEffect(() => {
         getTrendingMovies().then(setTrendingMovies).catch(console.error);
     }, []);
+
+    useEffect(() => {
+        fetchGenres(); 
+        console.log(genreList); 
+    }, []); 
 
     useEffect(() => {
         if(searchTerm){
@@ -161,20 +208,39 @@ const App = () => {
                     <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
                 </header>
 
-                <div class="dropdown">
-                    <div class="select">
-                        <span class="selected">All Genres</span>
-                        <div class="caret"></div>
+                <div className={`dropdown ${isOpen ? 'open' : ''}`}>
+                    <div className="select" onClick={handleToggleDropdown}>
+                        <span className="selected">{selectedGenre}</span>
+                        <div className={`caret ${isOpen ? 'caret-rotate' : ''}`}></div>
                     </div>
-                    <ul class="menu">
-                        <li class="active">All Genres</li>
-                        <li>Comedy</li>
-                        <li>Drama</li>
-                        <li>Horror</li>
-                        <li></li>
+                    <ul className={`menu ${isOpen ? 'menu-open' : ''}`}>
+                        <li
+                        className={activeGenre === 'All Genres' ? 'active' : ''}
+                        onClick={() => handleSelectGenre('All Genres')}
+                        >
+                        All Genres
+                        </li>
+                        <li
+                        className={activeGenre === 'Action' ? 'active' : ''}
+                        onClick={() => handleSelectGenre('Action')}
+                        >
+                        Action
+                        </li>
+                        <li
+                        className={activeGenre === 'Adventure' ? 'active' : ''}
+                        onClick={() => handleSelectGenre('Adventure')}
+                        >
+                        Adventure
+                        </li>
+                        <li
+                        className={activeGenre === 'Animation' ? 'active' : ''}
+                        onClick={() => handleSelectGenre('Animation')}
+                        >
+                        Animation
+                        </li>
                     </ul>
-
                 </div>
+
            
                 {/* All Movies */}
                 <section className="all-movies">

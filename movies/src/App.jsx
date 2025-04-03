@@ -214,32 +214,27 @@ const App = () => {
                         <div className={`caret ${isOpen ? 'caret-rotate' : ''}`}></div>
                     </div>
                     <ul className={`menu ${isOpen ? 'menu-open' : ''}`}>
+                        {/* Default "All Genres" option */}
                         <li
-                        className={activeGenre === 'All Genres' ? 'active' : ''}
-                        onClick={() => handleSelectGenre('All Genres')}
+                            className={activeGenre === 'All Genres' ? 'active' : ''}
+                            onClick={() => handleSelectGenre('All Genres')}
                         >
-                        All Genres
+                            All Genres
                         </li>
-                        <li
-                        className={activeGenre === 'Action' ? 'active' : ''}
-                        onClick={() => handleSelectGenre('Action')}
-                        >
-                        Action
-                        </li>
-                        <li
-                        className={activeGenre === 'Adventure' ? 'active' : ''}
-                        onClick={() => handleSelectGenre('Adventure')}
-                        >
-                        Adventure
-                        </li>
-                        <li
-                        className={activeGenre === 'Animation' ? 'active' : ''}
-                        onClick={() => handleSelectGenre('Animation')}
-                        >
-                        Animation
-                        </li>
+
+                        {/* Dynamically render genres from genreList */}
+                        {genreList.map((genre) => (
+                            <li
+                                key={genre.id}
+                                className={activeGenre === genre.name ? 'active' : ''}
+                                onClick={() => handleSelectGenre(genre.name)}
+                            >
+                                {genre.name}
+                            </li>
+                        ))}
                     </ul>
                 </div>
+
 
            
                 {/* All Movies */}

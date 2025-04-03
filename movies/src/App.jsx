@@ -1,13 +1,11 @@
-import React from "react";
+import React, { use } from "react";
 import Search from "./components/Search.jsx";
 import Spinner from "./components/Spinner.jsx";
 import { useState, useEffect, useRef } from "react";
 import MovieCard from "./components/MovieCard.jsx";
+import MovieDetailCard from "./components/MovieDetailCard.jsx";
 import { useDebounce } from "react-use";
 import { getTrendingMovies, updateSearchCount } from "./appwrite.js";
-
-
-
 
 const API_BASE_URL = "https://api.themoviedb.org/3";
 const API_KEY = import.meta.env.VITE_TMDB_API_KEY;
@@ -43,11 +41,26 @@ const App = () => {
     const [rating, setRating] = useState(""); 
     const [adult, setAdult] = useState("");  
 
+    const [selectedMovie, setSelectedMovie] = useState(null); 
+    const [movieData, setMovieData] = useState(null); 
+    const [isModalOpen, setIsModalOpen] = useState(false); 
+
     useDebounce(() => setDebouncedSearchTerm(searchTerm), 500, [searchTerm]);
 
     const handleToggleDropdown = () => {
         setIsOpen(!isOpen);
       };
+    
+
+    const handleMovieClick = async (movieId) => {
+        setIsModalOpen(true); 
+        await fetchMovieData(movieId); // Fetch movie details when clicked
+    };
+
+    useEffect(() => {
+        console.log("Selected Movie:", selectedMovie); 
+    }, [selectedMovie]);
+    
 
     const handleSelectGenre = (genreName) => {
         const genreObj = genreList.find((g) => g.name === genreName);
@@ -84,6 +97,21 @@ const App = () => {
             console.log("Error fetching genres");
         } 
     }
+
+    const fetchMovieData = async (movieId) => {
+        try {
+            let endpoint = `${API_BASE_URL}/movie/${movieId}`;
+            const response = await fetch(endpoint, API_OPTIONS);
+            
+            if (!response.ok) throw new Error("Failed to fetch movie details!");
+            
+            const data = await response.json();
+            setSelectedMovie(data);  // Set fetched data to selectedMovie
+            console.log("Fetched Movie Data:", data);
+        } catch (error) {
+            console.error("Error fetching movie information:", error);
+        }
+    };
 
     const fetchMovies = async (query = "", page = 1) => {
         scrollPosition.current = window.scrollY;
@@ -247,11 +275,18 @@ const App = () => {
                     ) : (
                         <ul>
                             {movieList.map((movie) => (
-                                <MovieCard key={movie.id} movie={movie} />
+                                <MovieCard key={movie.id} movie={movie} onClick={() => handleMovieClick(movie.id)} />
                             ))}
                         </ul>
                     )}
                 </section>
+
+                {isModalOpen && selectedMovie ? (
+                        <>
+                            <MovieDetailCard movie={selectedMovie} onClose={() => setIsModalOpen(false)} />
+                            {console.log("Displaying Modal for:", selectedMovie)}
+                        </>
+                    ) : console.log("Modal not shown")}
 
                 {/* Pagination */}
                 <div className="pagination">
